@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">K-means-clustering</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="Take_pic">Take Picture</string>
+    <string name="K_mean">Apply K-MEAN</string>
+    <string name="send_Data">send_Data</string>
+
+</resources>

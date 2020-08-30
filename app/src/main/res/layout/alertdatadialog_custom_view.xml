@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/data_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Number of Clusters"
+        android:padding="5dp"
+        android:background="#d5dda6"
+        android:textSize="15dp"
+        />
+    <EditText
+        android:id="@+id/et_name1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Cluster Number."
+        android:textSize="15dp"
+        android:layout_below="@id/data_dialog_title"
+        android:inputType="number"
+        />
+    <EditText
+        android:id="@+id/et_name2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Number of Data point."
+        android:textSize="15dp"
+        android:layout_below="@id/et_name1"
+        android:inputType="number"
+        />
+
+    <Button
+        android:id="@+id/dialog_positive_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:layout_alignParentRight="true"
+        android:background="#dde5ad"
+        android:layout_below="@id/et_name2"
+        />
+    <Button
+        android:id="@+id/dialog_negative_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:layout_toLeftOf="@id/dialog_positive_btn"
+        android:background="#dde5ad"
+        android:layout_marginRight="3dp"
+        android:layout_alignBaseline="@id/dialog_positive_btn"
+        />
+
+</RelativeLayout>
