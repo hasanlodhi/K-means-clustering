@@ -433,9 +433,9 @@ public class MainActivity extends AppCompatActivity {
         //must convert to 3 channel image
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGBA2RGB,3);
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGB2HSV,3);
-        List<Mat> clusters = cluster(mHSV,k);
+        List<Mat> clusters = clusterList(mHSV,k);
         //Mat clusters = cluster(mHSV,k).get(0);
-        Utils.matToBitmap(cluster(mHSV,k).get(0),outputBitmap);
+        Utils.matToBitmap(clusterList(mHSV,k).get(0),outputBitmap);
 
         imageView.setImageBitmap(outputBitmap);
         saveImage(outputBitmap);
@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //function to list down the clusters
-    public static List<Mat> cluster(Mat cutout, int k) {
+    public static List<Mat> clusterList(Mat cutout, int k) {
         Mat samples = cutout.reshape(1, cutout.cols() * cutout.rows());
         Mat samples32f = new Mat();
         samples.convertTo(samples32f, CvType.CV_32F, 1.0 / 255.0);
