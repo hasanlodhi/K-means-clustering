@@ -5,6 +5,15 @@ public class Pixels {
     int r;
     int g;
     int b;
+    int[] coordinates;
+
+    public int[] getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(int[] coordinates) {
+        this.coordinates = coordinates;
+    }
 
     public int getR() {
         return r;

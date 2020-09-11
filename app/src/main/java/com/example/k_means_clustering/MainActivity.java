@@ -286,13 +286,37 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             FileOutputStream out = new FileOutputStream(file);
-            Collections.shuffle(hashMap.get(cluster_no));
-            List<Pixels> randomSeries = hashMap.get(cluster_no).subList(0, data_point);
+           // Collections.shuffle(hashMap.get(cluster_no));
+            //List<Pixels> randomSeries = hashMap.get(cluster_no).subList(0, data_point);
+            List<Pixels> randomSeries;
 
-            for (Pixels p : randomSeries) {
+         /*   for (Pixels p : randomSeries) {
                 System.out.println("RGBBBB: "+p.getR()+":"+p.getG()+":"+p.getB());
-                out.write((p.getR()+","+p.getG()+","+p.getB()+" ").getBytes());
+                //out.write((p.getR()+","+p.getG()+","+p.getB()+" ").getBytes());
+                out.write((p.getCoordinates()[0]+","+p.getCoordinates()[1]+"   ").getBytes());
+            }*/
+
+            for(int i=0; i<k; i++){
+                Collections.shuffle(hashMap.get(i));
+
+                if(hashMap.get(i).size()<data_point){
+                    randomSeries = hashMap.get(i).subList(0,hashMap.get(i).size());
+                }
+                else{
+                   randomSeries = hashMap.get(i).subList(0, data_point);
+                }
+
+                out.write(("Cluster number: "+i).getBytes());
+                out.write("\r\n".getBytes());
+                for (Pixels p : randomSeries) {
+                    System.out.println("RGBBBB: "+p.getR()+":"+p.getG()+":"+p.getB());
+                    //out.write((p.getR()+","+p.getG()+","+p.getB()+" ").getBytes());
+                    out.write((p.getCoordinates()[0]+","+p.getCoordinates()[1]+"  ").getBytes());
+                }
+                out.write("\r\n".getBytes());
+                randomSeries.clear();
             }
+
 
             out.flush();
             out.close();
@@ -366,21 +390,21 @@ public class MainActivity extends AppCompatActivity {
                 cluster_count = counts.get(cluster_no);
                 data_point = Integer.parseInt(data_range.getText().toString());
 
-                if(cluster_no < k && cluster_no >= 0 ) {
-                    if(cluster_count >= data_point && data_point!=0){
+                /*if(cluster_no < k && cluster_no >= 0 ) {
+                    if(cluster_count >= data_point && data_point!=0){*/
                         Toast.makeText(getApplication(),
-                                data_point + " points from cluster no " + cluster_no + " ready to send.", Toast.LENGTH_LONG).show();
+                                data_point + " points from clusters are ready to send.", Toast.LENGTH_LONG).show();
                         String path = saveDataOnSDcard(clusters, cluster_no, data_point);
                         onShareOnePhoto(path);
-                    }
+                   /* }
                     else{
                         Toast.makeText(getApplication(), "The total data points present in the cluster " +cluster_no+ " is "+cluster_count+". However you have entered "+data_point+ " data points.", Toast.LENGTH_LONG).show();
                     }
-                }
+                  }
                 else{
                     Toast.makeText(getApplication(),
                             "Cluster number you enter is bigger or smaller then the no of clusters in the data", Toast.LENGTH_LONG).show();
-                }
+                }*/
             }
         });
 
@@ -393,35 +417,33 @@ public class MainActivity extends AppCompatActivity {
                         "No value is selected", Toast.LENGTH_LONG).show();
             }
         });
-
         // Display the custom alert dialog on interface
         dialog.show();
     }
 
-//fucntion to run open cv k mean clustering alogrothm on the image taken by the camera
+//function to run open cv k mean clustering algorithm on the image taken by the camera
     public void k_Mean(Bitmap photo, int k) throws IOException {
         Mat rgba = new Mat();
         Mat mHSV = new Mat();
 
-
+       // Bitmap outputBitmap = Bitmap.createBitmap(photo.getWidth(),photo.getHeight(), Bitmap.Config.RGB_565);
         Bitmap outputBitmap = Bitmap.createBitmap(photo.getWidth(),photo.getHeight(), Bitmap.Config.RGB_565);
         Utils.bitmapToMat(photo,rgba);
 
         //must convert to 3 channel image
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGBA2RGB,3);
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGB2HSV,3);
-        List<Mat> clusters = cluster(mHSV,k);
+        List<Mat> clusters = clusterList(mHSV,k);
         //Mat clusters = cluster(mHSV,k).get(0);
-
-        Utils.matToBitmap(cluster(mHSV,k).get(0),outputBitmap);
+        Utils.matToBitmap(clusterList(mHSV,k).get(0),outputBitmap);
 
         imageView.setImageBitmap(outputBitmap);
         saveImage(outputBitmap);
         sendData(clusters);
     }
 
-    //fucntion to list down the clusters
-    public static List<Mat> cluster(Mat cutout, int k) {
+    //function to list down the clusters
+    public static List<Mat> clusterList(Mat cutout, int k) {
         Mat samples = cutout.reshape(1, cutout.cols() * cutout.rows());
         Mat samples32f = new Mat();
         samples.convertTo(samples32f, CvType.CV_32F, 1.0 / 255.0);
@@ -433,11 +455,11 @@ public class MainActivity extends AppCompatActivity {
         Mat centers = new Mat();
         Core.kmeans(samples32f, k, labels, criteria, 1, Core.KMEANS_PP_CENTERS, centers);
 
-        return showClusters(cutout, labels, centers);
+        return displyClusters(cutout, labels, centers);
     }
 
     //function to show clusters
-    public static List<Mat> showClusters (Mat cutout, Mat labels, Mat centers) {
+    public static List<Mat> displyClusters(Mat cutout, Mat labels, Mat centers) {
         centers.convertTo(centers, CvType.CV_8UC1, 255.0);
         centers.reshape(3);
 
@@ -446,25 +468,29 @@ public class MainActivity extends AppCompatActivity {
             clusters.add(Mat.zeros(cutout.size(), cutout.type()));
         }
 
-        counts = new HashMap<Integer, Integer>();
+        counts = new HashMap<>();
         for(int i = 0; i < centers.rows(); i++)
             counts.put(i, 0);
 
         int rows = 0;
-        hashMap =new HashMap<Integer, List<Pixels>>();
+        hashMap =new HashMap<>();
         byte[] byt = new byte[3];
         for(int y = 0; y < cutout.rows(); y++) {
             for(int x = 0; x < cutout.cols(); x++) {
+                int[] coordinates = new int[2];
                 int label = (int)labels.get(rows, 0)[0];
                 int r = (int)centers.get(label, 2)[0];
                 int g = (int)centers.get(label, 1)[0];
                 int b = (int)centers.get(label, 0)[0];
+                coordinates[0] = y;
+                coordinates[1] = x;
 
+             //   System.out.println("x: " +x + "\ty: "+y);// returned the (x,y) //co ordinates of all white pixels.
                 Pixels pix = new Pixels();
-
-                pix.setR(r);
+                pix.setR(x);
                 pix.setG(g);
                 pix.setB(b);
+                pix.setCoordinates(coordinates);
 
                 if (!hashMap.containsKey(label)) {
                     List<Pixels> list = new ArrayList<Pixels>();
@@ -474,13 +500,13 @@ public class MainActivity extends AppCompatActivity {
                     hashMap.get(label).add(pix);
                 }
 
-                System.out.println("Label: "+label+" B: "+b+" G: "+g+" R: "+r);
+               // System.out.println("Label: "+label+" B: "+b+" G: "+g+" R: "+r);
                  counts.put(label, counts.get(label) + 1);
                 clusters.get(label).put(y, x, b, g, r);
                 rows++;
             }
         }
-
+        System.out.println("Counts: "+counts);
         return clusters;
     }
 }
