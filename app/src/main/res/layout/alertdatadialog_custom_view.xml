@@ -6,27 +6,19 @@
         android:id="@+id/data_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Number of Clusters"
+        android:text="Number of Data Points"
         android:padding="5dp"
         android:background="#d5dda6"
         android:textSize="15dp"
         />
-    <EditText
-        android:id="@+id/et_name1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Cluster Number."
-        android:textSize="15dp"
-        android:layout_below="@id/data_dialog_title"
-        android:inputType="number"
-        />
+
     <EditText
         android:id="@+id/et_name2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter Number of Data point."
         android:textSize="15dp"
-        android:layout_below="@id/et_name1"
+        android:layout_below="@id/data_dialog_title"
         android:inputType="number"
         />
 

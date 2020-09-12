@@ -286,15 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             FileOutputStream out = new FileOutputStream(file);
-           // Collections.shuffle(hashMap.get(cluster_no));
-            //List<Pixels> randomSeries = hashMap.get(cluster_no).subList(0, data_point);
             List<Pixels> randomSeries;
-
-         /*   for (Pixels p : randomSeries) {
-                System.out.println("RGBBBB: "+p.getR()+":"+p.getG()+":"+p.getB());
-                //out.write((p.getR()+","+p.getG()+","+p.getB()+" ").getBytes());
-                out.write((p.getCoordinates()[0]+","+p.getCoordinates()[1]+"   ").getBytes());
-            }*/
 
             for(int i=0; i<k; i++){
                 Collections.shuffle(hashMap.get(i));
@@ -374,7 +366,6 @@ public class MainActivity extends AppCompatActivity {
         Button btn_positive = (Button) dialogView.findViewById(R.id.dialog_positive_btn);
         Button btn_negative = (Button) dialogView.findViewById(R.id.dialog_negative_btn);
 
-        final EditText cluster_number = (EditText) dialogView.findViewById(R.id.et_name1);
         final EditText data_range = (EditText) dialogView.findViewById(R.id.et_name2);
 
         // Create the alert dialog
@@ -386,25 +377,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Dismiss the alert dialog
                 dialog.cancel();
-                cluster_no = Integer.parseInt(cluster_number.getText().toString());
                 cluster_count = counts.get(cluster_no);
                 data_point = Integer.parseInt(data_range.getText().toString());
 
-                /*if(cluster_no < k && cluster_no >= 0 ) {
-                    if(cluster_count >= data_point && data_point!=0){*/
                         Toast.makeText(getApplication(),
                                 data_point + " points from clusters are ready to send.", Toast.LENGTH_LONG).show();
                         String path = saveDataOnSDcard(clusters, cluster_no, data_point);
                         onShareOnePhoto(path);
-                   /* }
-                    else{
-                        Toast.makeText(getApplication(), "The total data points present in the cluster " +cluster_no+ " is "+cluster_count+". However you have entered "+data_point+ " data points.", Toast.LENGTH_LONG).show();
-                    }
-                  }
-                else{
-                    Toast.makeText(getApplication(),
-                            "Cluster number you enter is bigger or smaller then the no of clusters in the data", Toast.LENGTH_LONG).show();
-                }*/
             }
         });
 
@@ -434,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGBA2RGB,3);
         Imgproc.cvtColor(rgba, mHSV, Imgproc.COLOR_RGB2HSV,3);
         List<Mat> clusters = clusterList(mHSV,k);
-        //Mat clusters = cluster(mHSV,k).get(0);
+
         Utils.matToBitmap(clusterList(mHSV,k).get(0),outputBitmap);
 
         imageView.setImageBitmap(outputBitmap);
@@ -455,11 +434,11 @@ public class MainActivity extends AppCompatActivity {
         Mat centers = new Mat();
         Core.kmeans(samples32f, k, labels, criteria, 1, Core.KMEANS_PP_CENTERS, centers);
 
-        return displyClusters(cutout, labels, centers);
+        return displayCluster(cutout, labels, centers);
     }
 
     //function to show clusters
-    public static List<Mat> displyClusters(Mat cutout, Mat labels, Mat centers) {
+    public static List<Mat> displayCluster(Mat cutout, Mat labels, Mat centers) {
         centers.convertTo(centers, CvType.CV_8UC1, 255.0);
         centers.reshape(3);
 
@@ -485,7 +464,6 @@ public class MainActivity extends AppCompatActivity {
                 coordinates[0] = y;
                 coordinates[1] = x;
 
-             //   System.out.println("x: " +x + "\ty: "+y);// returned the (x,y) //co ordinates of all white pixels.
                 Pixels pix = new Pixels();
                 pix.setR(x);
                 pix.setG(g);
@@ -500,8 +478,7 @@ public class MainActivity extends AppCompatActivity {
                     hashMap.get(label).add(pix);
                 }
 
-               // System.out.println("Label: "+label+" B: "+b+" G: "+g+" R: "+r);
-                 counts.put(label, counts.get(label) + 1);
+                counts.put(label, counts.get(label) + 1);
                 clusters.get(label).put(y, x, b, g, r);
                 rows++;
             }
